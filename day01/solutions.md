@@ -1,101 +1,87 @@
-# 🌱 TerraWeek Day 1 — My Notes & Solutions
+# 🌱 TerraWeek Day 1 — Introduction to IaC & Terraform
 
-**Date:** 15 July 2026
-**Machine:** macOS (Apple Silicon, darwin_arm64) · **Terraform:** v1.15.8
+**Date:** 15 July 2026 · **Terraform:** v1.15.8 · **OS:** macOS (Apple Silicon)
+
+Day 1 is all about the basics: what Infrastructure as Code is, installing Terraform, and running my very first `terraform apply` — with zero cloud cost.
 
 ---
 
-## Task 1: Understand IaC & Terraform
+## Task 1: What is IaC & Terraform?
 
-### What is Infrastructure as Code (IaC)?
+### Infrastructure as Code (IaC)
 
-Infrastructure as Code means defining your servers, networks, storage, and other infrastructure in **text files (code)** instead of creating them manually by clicking around a cloud console.
+IaC means writing your infrastructure (servers, files, networks) as **code in text files** instead of clicking buttons in a cloud console.
 
-Problems it solves compared to "ClickOps":
+**Why it's better than clicking around:**
 
-- **Repeatable** — the same config produces the same infrastructure every time; no "it worked on my account" surprises.
-- **Version controlled** — configs live in Git, so you get history, code review, and easy rollback.
-- **Documented by default** — the code *is* the documentation of what exists and why.
-- **Scalable** — creating 50 identical environments is a loop, not 50 afternoons of clicking.
-- **Fewer human errors** — no forgotten checkbox or wrong region selected at 2 AM.
+- ✅ **Repeatable** — same code = same result, every time.
+- ✅ **Saved in Git** — full history, easy rollback, team review.
+- ✅ **Self-documenting** — the code shows exactly what exists.
+- ✅ **Fast at scale** — build 50 servers with a loop, not 50 clicks.
+- ✅ **Fewer mistakes** — no forgotten setting or wrong region.
 
-### What is Terraform, and why is it so popular?
+### What is Terraform?
 
-Terraform is an **IaC tool by HashiCorp** that lets you describe infrastructure declaratively in HCL, then creates/updates/deletes real resources to match that description.
+Terraform is a tool by **HashiCorp** that lets you describe infrastructure in simple config files, then builds it for you.
 
-Why it's popular:
+**Why it's so popular:**
 
-- **Declarative** — you describe the *desired end state*; Terraform figures out the steps.
-- **Provider-agnostic** — one tool and one language for AWS, Azure, GCP, Kubernetes, GitHub, Docker, and thousands more.
-- **Plan before apply** — you always get a preview of changes before anything is touched.
-- **State tracking** — Terraform knows what it created, so it can update or destroy it cleanly.
-- **Huge ecosystem** — thousands of providers and reusable modules in the public registry.
+- **Declarative** — you say *what* you want, Terraform figures out *how*.
+- **Works everywhere** — AWS, Azure, GCP, Docker, GitHub, and 1000s more, all with one tool.
+- **Safe** — `plan` shows you the changes *before* anything happens.
+- **Remembers** — it tracks what it built, so it can update or delete cleanly.
 
-### Terraform vs the alternatives (one-liners)
+### Terraform vs. others (one line each)
 
-| Tool | Compared to Terraform |
+| Tool | How it compares |
 |---|---|
-| **OpenTofu** | Open-source fork of Terraform (created after the license change) — nearly identical syntax and workflow, community/Linux Foundation governed. |
-| **Pulumi** | Same idea, but you write real programming languages (Python, TypeScript, Go) instead of HCL. |
-| **CloudFormation** | AWS's native IaC — works only with AWS, while Terraform is multi-cloud. |
-| **Ansible** | Primarily a *configuration management* tool (installing/configuring software on existing servers); Terraform is for *provisioning* the infrastructure itself. They're often used together. |
+| **OpenTofu** | Open-source fork of Terraform — almost identical, community-run. |
+| **Pulumi** | Same job, but you code in Python / TypeScript / Go instead of HCL. |
+| **CloudFormation** | AWS-only; Terraform works across all clouds. |
+| **Ansible** | Best for *configuring* existing servers; Terraform *creates* the infra. |
 
 ---
 
-## Task 2: Install Terraform
+## Task 2: Install Terraform ✅
 
-```text
-$ terraform version
-Terraform v1.15.8
-on darwin_arm64
-```
+I installed Terraform 1.15.8 and checked it works with `terraform version` and `terraform -help`:
 
-📸 *Screenshot: `terraform version` + `terraform -help` output* ✅ (captured)
+![terraform version and help output](screenshots/01-terraform-version.png)
 
-VS Code extension: **HashiCorp Terraform** installed for syntax highlighting, autocomplete, and the language server.
+I also installed the **HashiCorp Terraform** extension in VS Code for syntax highlighting and autocomplete.
 
 ---
 
-## Task 3: Six Crucial Terraform Terminologies
+## Task 3: 6 Key Terraform Words (in my own words)
 
-1. **Provider** — a plugin that teaches Terraform how to talk to a specific platform.
-   *Example: `hashicorp/local` lets Terraform manage files on my machine; `hashicorp/aws` would manage AWS.*
-
-2. **Resource** — a single piece of infrastructure Terraform creates and manages.
-   *Example: `resource "local_file" "greeting" { ... }` creates a file; on AWS it could be an EC2 instance.*
-
-3. **State** — Terraform's record (the `terraform.tfstate` file) of everything it manages, used to map config to real-world objects.
-   *Example: after apply, my state stored the generated pet name `certain-manatee` so future plans know it already exists.*
-
-4. **Plan** — a dry-run preview showing exactly what Terraform *would* create, change, or destroy.
-   *Example: my plan showed `Plan: 2 to add, 0 to change, 0 to destroy` before I applied.*
-
-5. **HCL** — HashiCorp Configuration Language, the human-friendly declarative syntax `.tf` files are written in.
-   *Example: `length = 2` inside a `resource` block.*
-
-6. **Module** — a reusable, packaged group of Terraform configuration you can call like a function.
-   *Example: a `vpc` module you call with different CIDR ranges for dev and prod.*
+| Term | Meaning | Example |
+|---|---|---|
+| **Provider** | Plugin that lets Terraform talk to a platform | `hashicorp/local` to manage files |
+| **Resource** | One piece of infra you create | `local_file` that writes a file |
+| **State** | Terraform's memory of what it built (`terraform.tfstate`) | Stored my pet name `certain-manatee` |
+| **Plan** | A preview of what will change | `Plan: 2 to add, 0 to change` |
+| **HCL** | The language you write Terraform in | `length = 2` |
+| **Module** | A reusable bundle of config (like a function) | A `vpc` module you reuse for dev & prod |
 
 ---
 
-## Task 4: My First Terraform Config (zero cloud cost!)
+## Task 4: My First Terraform Config 🚀
 
-The config uses only the `random` and `local` providers — no credentials, no bill.
+The starter config uses the `random` and `local` providers — **no cloud account, no credentials, no cost.** It just makes up a random pet name and writes it to a file.
 
-### The workflow I ran
+### The workflow, step by step
 
-```bash
-cd day01/example
-terraform init      # downloaded hashicorp/random v3.9.0 + hashicorp/local v2.9.0
-terraform fmt       # formatted the .tf files
-terraform validate  # "Success! The configuration is valid."
-terraform plan      # Plan: 2 to add, 0 to change, 0 to destroy
-terraform apply     # typed "yes" → Apply complete! Resources: 2 added
-cat greeting.txt
-terraform destroy   # typed "yes" → Destroy complete! Resources: 2 destroyed
-```
+**1. `terraform init`** — downloads the providers and sets up the folder:
 
-### Results
+![terraform init output](screenshots/02-terraform-init.png)
+
+**2. `terraform validate` + `terraform plan`** — checks the config and previews the 2 resources it will create:
+
+![terraform validate and plan output](screenshots/03-validate-plan.png)
+
+**3. `terraform apply`** — creates everything (I typed `yes`) and prints the outputs:
+
+![terraform apply output](screenshots/04-terraform-apply.png)
 
 ```text
 Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
@@ -105,67 +91,44 @@ file_path = "./greeting.txt"
 pet_name  = "certain-manatee"
 ```
 
+**4. `cat greeting.txt`** — the file Terraform made:
+
 ```text
-$ cat greeting.txt
 Hello from TerraWeek 2026! 🚀
 Your infra pet name is: certain-manatee
 ```
 
-### Clean up
+**5. `terraform destroy`** — cleans everything up (typed `yes`):
+
+![terraform destroy output](screenshots/05-terraform-destroy.png)
 
 ```text
-$ terraform destroy
-random_pet.name: Refreshing state... [id=certain-manatee]
-local_file.greeting: Refreshing state... [id=0c13658d4f6e72c4993aeb0b5e3ab4354618f2e4]
-
-Plan: 0 to add, 0 to change, 2 to destroy.
-
-Do you really want to destroy all resources?
-  Enter a value: yes
-
-local_file.greeting: Destroying... [id=0c13658d4f6e72c4993aeb0b5e3ab4354618f2e4]
-local_file.greeting: Destruction complete after 0s
-random_pet.name: Destroying... [id=certain-manatee]
-random_pet.name: Destruction complete after 0s
-
 Destroy complete! Resources: 2 destroyed.
 ```
 
-After destroy, `greeting.txt` is deleted and `terraform.tfstate` is empty (`"resources": []`) — Terraform cleaned up everything it created.
-
-### Screenshot checklist
-
-📸 `terraform version` + `terraform -help` ✅
-📸 `terraform init` ✅
-📸 `terraform validate` + `terraform plan` ✅
-📸 `terraform apply` with outputs ✅
-📸 `cat greeting.txt` + `terraform destroy` ✅
+After destroy, `greeting.txt` is gone and the state file is empty. Full circle! ✅
 
 ---
 
 ## 🍫 Bonus
 
-### Tab completion
-
+**Tab completion:**
 ```bash
-terraform -install-autocomplete   # then restart the shell (zsh)
+terraform -install-autocomplete   # then restart the terminal
 ```
 
-### The `.terraform.lock.hcl` lock file
+**What is `.terraform.lock.hcl`?**
+It's a lock file made by `terraform init` that pins the **exact provider versions** (random v3.9.0, local v2.9.0) with checksums. Commit it to Git so everyone on the team gets the same versions — just like `package-lock.json` in Node.
 
-Created by `terraform init`, it **pins the exact provider versions and their checksums** (e.g. `random v3.9.0`, `local v2.9.0`). It should be **committed to Git** so every teammate — and CI — gets the *same* provider versions, even if the version constraint (`~> 2.5`) would allow newer ones. It's the same idea as `package-lock.json` in Node.js.
-
-### OpenTofu
-
-OpenTofu (`brew install opentofu`, then `tofu init` / `tofu plan` / `tofu apply`) is a drop-in fork — the same HCL config runs unchanged; the main differences are governance (Linux Foundation), the MPL open-source license, and some newer features like state encryption.
+**OpenTofu:** a drop-in fork of Terraform. Same config runs with `tofu init` / `tofu plan` / `tofu apply`; the difference is open-source licensing and community governance.
 
 ---
 
-## Key takeaways
+## ✅ Day 1 Complete
 
-- The core loop is **write → init → plan → apply → destroy** — everything else builds on this.
-- `terraform plan` before `apply` is the safety net: never skip reading it.
-- State is the single source of truth for what Terraform manages — protect it.
-- You can learn Terraform for free: `local` + `random` providers cost nothing.
+- Learned what IaC and Terraform are and why they matter.
+- Installed Terraform 1.15.8 + the VS Code extension.
+- Ran the full workflow: **init → validate → plan → apply → destroy**.
+- Key lesson: always read `plan` before `apply`, and `state` is Terraform's source of truth.
 
 #TrainWithShubham #TerraWeekChallenge
