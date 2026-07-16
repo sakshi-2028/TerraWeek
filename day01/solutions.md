@@ -102,7 +102,7 @@ Your infra pet name is: certain-manatee
 
 **5. `terraform destroy`** — cleans everything up (typed `yes`):
 
-![terraform destroy output](screenshots/day1-destroy.png)
+![terraform destroy output](screenshots/day1_destroy.png)
 
 ```text
 Destroy complete! Resources: 2 destroyed.
