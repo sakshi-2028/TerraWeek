@@ -2,44 +2,62 @@
 
 **Date:** Wednesday, 15th July 2026
 
-## Learning Goals
+---
 
-* Understand Terraform State and its importance.
-* Explore Terraform state commands.
-* Configure a remote backend using Amazon S3.
-* Enable native S3 state locking using `use_lockfile = true`.
-* Import existing resources into Terraform.
+# Learning Goals
 
+- Understand Terraform State and its importance.
+- Explore Terraform state commands.
+- Configure a remote backend using Amazon S3.
+- Enable native S3 state locking using `use_lockfile = true`.
+- Import existing resources into Terraform.
 
 ---
 
-## Task 1: Why State Matters
+# Task 1: Why State Matters
 
-### What is `terraform.tfstate`?
+## What is `terraform.tfstate`?
 
-`terraform.tfstate` is Terraform's state file that keeps track of all infrastructure resources managed by Terraform. It acts as a source of truth and maps Terraform configuration to real-world infrastructure.
+`terraform.tfstate` is Terraform's state file that keeps track of all infrastructure resources managed by Terraform.
+
+It acts as a source of truth and maps Terraform configuration with real-world infrastructure.
 
 It stores:
 
-* Resource IDs
-* Attributes and metadata
-* Dependencies
-* Outputs
-* Provider information
+- Resource IDs
+- Resource attributes
+- Dependencies
+- Outputs
+- Provider information
 
-### Why should you never edit it manually?
+---
 
-* Manual changes can corrupt the state.
-* Terraform may lose track of resources.
-* It can lead to accidental deletion or recreation of infrastructure.
+## Why should you never edit Terraform state manually?
 
-### Why should you never commit it to Git?
+Manual editing of the state file can:
 
-* State files may contain sensitive information.
-* Team members can overwrite changes.
-* Secrets such as passwords or access keys may be stored in plaintext.
+- Corrupt the state file.
+- Break Terraform resource tracking.
+- Cause accidental resource recreation or deletion.
+- Create inconsistencies between Terraform and AWS infrastructure.
 
-Always add the following to `.gitignore`:
+Terraform state should always be modified using Terraform commands.
+
+---
+
+## Why should you never commit `.tfstate` to Git?
+
+Terraform state may contain sensitive information:
+
+- Database passwords
+- API tokens
+- IAM credentials
+- Connection strings
+- Sensitive outputs
+
+Also, committing state files can create conflicts between team members.
+
+Add this to `.gitignore`:
 
 ```gitignore
 *.tfstate
@@ -47,15 +65,17 @@ Always add the following to `.gitignore`:
 .terraform/
 ```
 
-### What is State Drift?
+---
 
-State drift occurs when infrastructure is changed outside Terraform (AWS Console, CLI, etc.).
+## What is State Drift?
+
+State drift happens when infrastructure changes outside Terraform.
 
 Example:
 
-1. Create an EC2 instance using Terraform.
-2. Change the instance type manually in AWS Console.
-3. Terraform state no longer matches the actual infrastructure.
+1. EC2 instance created using Terraform.
+2. Someone changes the instance type manually from AWS Console.
+3. Terraform state and real infrastructure become different.
 
 Useful commands:
 
@@ -64,88 +84,139 @@ terraform plan
 terraform refresh
 ```
 
-* `terraform plan` detects differences.
-* `terraform refresh` updates the state with current infrastructure values.
+`terraform plan`:
 
-### Why is Terraform State Sensitive?
+- Detects differences between Terraform state and actual infrastructure.
 
-Terraform state can contain:
+`terraform refresh`:
 
-* Database passwords
-* IAM Access Keys
-* API Tokens
-* Connection Strings
-* Sensitive Outputs
-
-Therefore, state should always be:
-
-* Encrypted
-* Access controlled
-* Stored remotely
+- Updates Terraform state with current infrastructure information.
 
 ---
 
-## Task 2: Terraform State Commands
+## Why is Terraform State Sensitive?
 
-### List Resources
+Terraform state can contain:
+
+- Passwords
+- Secrets
+- Access keys
+- API tokens
+- Sensitive outputs
+
+Therefore, Terraform state should be:
+
+- Encrypted
+- Stored remotely
+- Protected with IAM permissions
+
+---
+
+# Task 2: Terraform State Commands
+
+## List Resources
+
+Command:
 
 ```bash
 terraform state list
 ```
 
-Lists all resources managed by Terraform.
+Lists all resources currently managed by Terraform.
 
-### Show Resource Details
+Example:
+
+```text
+aws_s3_bucket.imported
+random_pet.demo
+```
+
+---
+
+## Show Resource Details
+
+Command:
 
 ```bash
-terraform state show random_pet.demo 
+terraform state show random_pet.demo
 ```
+
 Displays detailed information about a specific resource.
 
+Screenshot:
 
-![terraform state list](./screenshots/state_show_list.png)
+![Terraform State Show and List](./screenshots/state_show_list.png)
 
-### Move a Resource
+---
+
+## Move a Resource
+
+Command:
 
 ```bash
 terraform state mv random_pet.demo random_pet.new_demo
 ```
 
-Used when refactoring Terraform code without recreating resources.
+Used when renaming or refactoring resources without destroying infrastructure.
 
-### Remove a Resource from State
+> Note: Before running `terraform state mv`, update the Terraform configuration with the new resource address.
+
+Screenshot:
+
+![Terraform State Move and Remove](./screenshots/mv_rm.png)
+
+---
+
+## Remove Resource From State
+
+Command:
 
 ```bash
-terraform state rm random_pet.new_demo 
+terraform state rm random_pet.new_demo
 ```
-Removes the resource from Terraform management without deleting it from AWS.
 
-![terraform state list](./screenshots/mv_rm.png)
+Removes the resource from Terraform management.
 
+Important:
 
-### Display State
+- It removes only from Terraform state.
+- It does NOT delete the actual infrastructure.
+
+---
+
+## Display Terraform State
+
+Command:
 
 ```bash
 terraform show
 ```
-![terraform state list](./screenshots/terraform_show.png)
 
+Shows Terraform state in a human-readable format.
 
-Shows the current Terraform state in a human-readable format.
+Screenshot:
 
-| Command                | Description                |
-| ---------------------- | -------------------------- |
-| `terraform state list` | List all managed resources |
-| `terraform state show` | Show resource details      |
-| `terraform state mv`   | Rename or move resources   |
-| `terraform state rm`   | Stop managing a resource   |
-| `terraform show`       | Display the state file     |
+![Terraform Show Output](./screenshots/terraform_show.png)
 
 ---
 
-## Task 3: Bootstrap Backend Infrastructure
+## Terraform State Commands Summary
 
-Create the S3 bucket for storing Terraform state.
+| Command | Description |
+|---|---|
+| `terraform state list` | List managed resources |
+| `terraform state show` | Show resource details |
+| `terraform state mv` | Move or rename resources |
+| `terraform state rm` | Remove resource from state |
+| `terraform show` | Display state information |
+
+---
+
+# Task 3: Bootstrap Backend Infrastructure
+
+The S3 bucket used for remote state must be created before configuring the backend.
+
+Created backend infrastructure:
 
 ```bash
 cd backend_infra
@@ -154,27 +225,26 @@ terraform init
 terraform apply
 ```
 
+Created resources:
 
+- S3 Bucket
+- Bucket Versioning
+- Server-side Encryption
+- Public Access Block
 
-This creates:
-
-* Versioned S3 Bucket
-* Server-side Encryption
-* Public Access Block
-
-> Note: The backend bucket itself is initially managed using local state.
+The backend bucket itself uses local Terraform state initially.
 
 ---
 
-## Task 4: Configure Remote Backend
+# Task 4: Configure Remote Backend with Native Locking
 
-### Backend Configuration
+## S3 Backend Configuration
 
 ```hcl
 terraform {
   backend "s3" {
-    bucket       = "your-unique-terraweek-state-bucket"
-    key          = "day04/terraform.tfstate"
+    bucket       = "terraweek-2026-state-bucket-sakshi"
+    key          = "day04/backend_demo/terraform.tfstate"
     region       = "us-east-1"
     encrypt      = true
     use_lockfile = true
@@ -182,7 +252,11 @@ terraform {
 }
 ```
 
-### Initialize Terraform
+---
+
+## Initialize Backend
+
+Command:
 
 ```bash
 cd backend_demo
@@ -190,96 +264,150 @@ cd backend_demo
 terraform init
 ```
 
-Terraform prompts to migrate the local state to Amazon S3.
+Terraform migrated the local state file to Amazon S3.
 
-### Apply Changes
+---
+
+## Apply Terraform Configuration
 
 ```bash
 terraform apply
 ```
 
-### Verification
+Terraform now stores state remotely in S3.
 
-* Confirm `terraform.tfstate` exists in the S3 bucket.
-* Observe `.tflock` appearing during `terraform apply`.
-* Verify the lock file disappears after execution.
+---
 
-### Native Locking
+## Native S3 State Locking
 
-Older approach:
+Old approach:
 
-```text
+```
 S3 + DynamoDB
 ```
 
-Modern approach (Terraform 1.11+):
+Modern approach:
 
-```text
+```
 S3 + use_lockfile = true
 ```
 
 Benefits:
 
-* No DynamoDB required.
-* Simpler setup.
-* Lower AWS cost.
-* Native S3 locking.
+- No DynamoDB table required.
+- Lower AWS cost.
+- Simpler configuration.
+- Native S3 locking support.
 
-![terraform state list](./screenshots/s3-bucket-created.png)
-![terraform state list](./screenshots/console.png)
-![terraform state list](./screenshots/console2.png)
+Screenshots:
+
+![S3 State Bucket Created](./screenshots/s3-bucket-created.png)
+
+![Terraform Backend Configuration](./screenshots/console.png)
+
+![Terraform State Stored in S3](./screenshots/console2.png)
 
 ---
 
-## Task 5: Import Existing Resources
+# Task 5: Import Existing Resource
 
-Create an S3 bucket manually using the AWS Console.
+## Create Resource Manually
 
-### Import Block
+Created an S3 bucket manually from AWS Console:
+
+```
+terraweek-import-demo-sakshi-2026
+```
+
+This bucket was created outside Terraform.
+
+---
+
+## Terraform Resource and Import Block
+
+Created `import.tf`:
 
 ```hcl
+resource "aws_s3_bucket" "imported" {
+  bucket = "terraweek-import-demo-sakshi-2026"
+}
+
 import {
   to = aws_s3_bucket.imported
-  id = "my-manually-created-bucket"
+  id = "terraweek-import-demo-sakshi-2026"
 }
 ```
 
-### Generate Configuration
+---
+
+## Generate Terraform Configuration
+
+Command:
 
 ```bash
 terraform plan -generate-config-out=generated.tf
 ```
 
-Terraform generates a new file:
+Terraform inspected the existing AWS resource and generated:
 
-```text
+```
 generated.tf
 ```
 
-This file contains Terraform code for the imported resource.
+Screenshots:
 
-![terraform state list](./screenshots/plan.png)
-![terraform state list](./screenshots/state-list.png)
-### Benefits of Import
+![Terraform Import Plan](./screenshots/plan.png)
 
-* Manage existing infrastructure with Terraform.
-* Avoid resource recreation.
-* Adopt Infrastructure as Code gradually.
+![Generated Configuration](./screenshots/generated.png)
 
 ---
 
-## Bonus Tasks
+## Verify Imported Resource
 
-### Compare Remote Backends
+Command:
 
-| Backend              | Locking Method     |
-| -------------------- | ------------------ |
-| Amazon S3            | Native Lock File   |
-| HCP Terraform        | Built-in           |
-| Azure Storage        | Blob Lease         |
+```bash
+terraform state list
+```
+
+Output:
+
+```text
+aws_s3_bucket.imported
+random_pet.demo
+```
+
+Screenshot:
+
+![Terraform Imported State](./screenshots/state-list.png)
+
+---
+
+## Benefits of Terraform Import
+
+- Manage existing AWS resources with Terraform.
+- Avoid recreating infrastructure.
+- Adopt Infrastructure as Code gradually.
+- Bring manually created resources under Terraform control.
+
+---
+
+# Bonus Tasks
+
+## Remote Backend Comparison
+
+| Backend | Locking Method |
+|---|---|
+| Amazon S3 | Native Lock File |
+| HCP Terraform | Built-in Locking |
+| Azure Storage | Blob Lease |
 | Google Cloud Storage | Generation Numbers |
 
-### Moved Block
+---
+
+## Moved Block
+
+Example:
 
 ```hcl
 moved {
@@ -288,7 +416,13 @@ moved {
 }
 ```
 
-### Removed Block
+Used for refactoring resource names without recreation.
+
+---
+
+## Removed Block
+
+Example:
 
 ```hcl
 removed {
@@ -296,7 +430,13 @@ removed {
 }
 ```
 
-### Check Block
+Stops Terraform management without deleting the resource.
+
+---
+
+## Check Block
+
+Example:
 
 ```hcl
 check "instance_running" {
@@ -307,18 +447,25 @@ check "instance_running" {
 }
 ```
 
+Used for continuous infrastructure validation.
+
 ---
 
-## Commands Used
+# Commands Used
 
 ```bash
 terraform state list
+
 terraform state show <resource>
+
 terraform state mv <source> <destination>
+
 terraform state rm <resource>
 
 terraform init
+
 terraform apply
+
 terraform destroy
 
 terraform plan -generate-config-out=generated.tf
@@ -326,19 +473,19 @@ terraform plan -generate-config-out=generated.tf
 
 ---
 
-## Key Learnings
+# Key Learnings
 
-* Terraform State is the source of truth.
-* Never commit `.tfstate` files to Git.
-* State files can contain sensitive information.
-* Remote backends improve collaboration.
-* Native S3 locking replaces DynamoDB.
-* Existing infrastructure can be imported into Terraform.
-* S3 versioning helps recover previous state versions.
+- Terraform State is the source of truth.
+- Never commit `.tfstate` files to Git.
+- Terraform state can contain sensitive information.
+- Remote backends improve team collaboration.
+- S3 native locking replaces DynamoDB locking.
+- Existing infrastructure can be imported into Terraform.
+- S3 versioning helps recover previous state versions.
 
 ---
 
-## Cleanup
+# Cleanup
 
 ```bash
 cd backend_demo
@@ -348,17 +495,21 @@ cd ../backend_infra
 terraform destroy
 ```
 
-> Note: Empty the S3 bucket if versioning prevents deletion.
+If versioning prevents deletion, empty the S3 bucket versions first.
 
 ---
 
-## Conclusion
+# Conclusion
 
-Today, I learned how Terraform manages infrastructure using state files, why state security is important, and how to configure a remote backend using Amazon S3 with native state locking. I also explored Terraform state commands and imported existing resources into Terraform management.
+Today I learned how Terraform manages infrastructure using state files, why state security is important, and how to configure remote state storage using Amazon S3 with native locking.
 
-## Tags
+I also practiced Terraform state commands and imported existing AWS resources into Terraform management.
 
-```text
+---
+
+# Tags
+
+```
 #TrainWithShubham
 #TerraWeekChallenge
 #Terraform
@@ -366,6 +517,3 @@ Today, I learned how Terraform manages infrastructure using state files, why sta
 #AWS
 #InfrastructureAsCode
 ```
-
-
-
