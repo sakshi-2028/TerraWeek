@@ -73,15 +73,17 @@ The starter config uses the `random` and `local` providers — **no cloud accoun
 
 **1. `terraform init`** — downloads the providers and sets up the folder:
 
-![terraform init output](screenshots/02-terraform-init.png)
+![terraform init output](screenshots/day1-init.png)
 
 **2. `terraform validate` + `terraform plan`** — checks the config and previews the 2 resources it will create:
 
-![terraform validate and plan output](screenshots/03-validate-plan.png)
+![terraform validate](screenshots/day1-plan.png)
+
+![terraform validate and plan output](screenshots/day1-plan.png)
 
 **3. `terraform apply`** — creates everything (I typed `yes`) and prints the outputs:
 
-![terraform apply output](screenshots/04-terraform-apply.png)
+![terraform apply output](screenshots/day1_apply.png)
 
 ```text
 Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
@@ -100,7 +102,7 @@ Your infra pet name is: certain-manatee
 
 **5. `terraform destroy`** — cleans everything up (typed `yes`):
 
-![terraform destroy output](screenshots/05-terraform-destroy.png)
+![terraform destroy output](screenshots/day1-destroy.png)
 
 ```text
 Destroy complete! Resources: 2 destroyed.
