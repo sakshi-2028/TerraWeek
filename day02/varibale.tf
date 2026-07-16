@@ -41,7 +41,7 @@ variable "user_details" {
   type        = map(string)
 
   default = {
-    Name = "Neha"
+    Name = "sakshi"
     Team = "DevOps"
   }
 }
@@ -70,8 +70,8 @@ variable "user_info" {
   })
 
   default = {
-    name = "Neha"
-    age  = 26
+    name = "sakshi"
+    age  = 25
     team = "DevOps"
   }
 }
@@ -81,8 +81,8 @@ variable "user_tuple" {
   type        = tuple([string, number, bool])
 
   default = [
-    "Neha",
-    101,
+    "sakshi",
+    100,
     true
   ]
 }
