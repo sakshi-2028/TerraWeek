@@ -7,5 +7,5 @@ variable "aws_region" {
 variable "state_bucket_name" {
   description = "Globally-unique name for the S3 state bucket. CHANGE THIS."
   type        = string
-  default     = "terraweek-2026-state-bucket-changeme"
+  default     = "terraweek-2026-state-bucket-sakshi"
 }
