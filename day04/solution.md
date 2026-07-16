@@ -103,7 +103,7 @@ terraform state show random_pet.demo
 Displays detailed information about a specific resource.
 
 
-![terraform state list](./screenshots/state-show_list.png)
+![terraform state list](./screenshots/state_show_list.png)
 
 ### Move a Resource
 
