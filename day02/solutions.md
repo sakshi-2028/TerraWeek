@@ -1,14 +1,54 @@
 # 🧩 TerraWeek Day 2 — HCL Deep Dive: Variables, Types & Expressions
 
-**Date:** 15 July 2026 · **Terraform:** v1.15.8 · **Provider:** kreuzwerker/docker
+> **Date:** 15 July 2026
+> **Terraform Version:** v1.15.8
+> **Provider:** `kreuzwerker/docker`
 
-Today is about the **language** behind Terraform — HCL — so configs become flexible and reusable using variables, types, locals, outputs, and functions.
+Today was all about learning the language behind Terraform—HCL (HashiCorp Configuration Language)—and using variables, expressions, locals, outputs, and functions to build reusable infrastructure.
 
 ---
 
-## Task 1: HCL Syntax Basics
+## 📂 Repository Structure
 
-### Anatomy of a block
+```text
+day02/
+├── README.md
+├── variables.tf
+├── local.tf
+├── outputs.tf
+├── solutions.md
+├── example/
+│   ├── main.tf
+│   ├── variables.tf
+│   ├── outputs.tf
+│   └── terraform.tfvars
+└── screenshots/
+    ├── 01-variables-tf.png
+    ├── console.png
+    ├── init_plan.png
+    ├── apply.png
+    └── terraform-destroy.png
+```
+
+### Quick Navigation
+
+* [`variables.tf`](./variables.tf)
+* [`local.tf`](./local.tf)
+* [`outputs.tf`](./outputs.tf)
+* [`solutions.md`](./solutions.md)
+* [`example/main.tf`](./example/main.tf)
+* [`example/variables.tf`](./example/variables.tf)
+* [`example/outputs.tf`](./example/outputs.tf)
+* [`example/terraform.tfvars`](./example/terraform.tfvars)
+* [`screenshots/`](./screenshots)
+
+---
+
+## Task 1: Master HCL Syntax
+
+### Anatomy of a Block
+
+Terraform uses blocks to define infrastructure.
 
 ```hcl
 block_type "label_one" "label_two" {
@@ -16,43 +56,90 @@ block_type "label_one" "label_two" {
 }
 ```
 
-Real example from my config:
+Example:
 
 ```hcl
-resource "docker_container" "web" {   # block_type="resource", labels="docker_container" & "web"
-  name  = "tws-web"                   # argument = value
-  image = docker_image.nginx.image_id # reference to another resource
+resource "docker_container" "web" {
+  name  = "tws-web"
+  image = docker_image.nginx.image_id
 }
 ```
 
-### Argument vs. Block
+* `resource` → Block type
+* `docker_container` → First label
+* `web` → Second label
+* `name` and `image` → Arguments
 
-- **Argument** → assigns a value: `external_port = 8080` (has an `=`).
-- **Block** → a container with `{ }` that holds arguments or more blocks: `ports { ... }` (no `=`).
+---
+
+### Argument vs Block
+
+| Argument        | Block                         |
+| --------------- | ----------------------------- |
+| Uses `=`        | Uses `{}`                     |
+| Assigns a value | Contains nested configuration |
+
+Example:
+
+```hcl
+resource "docker_container" "web" {
+  name = "tws-web"
+
+  ports {
+    internal = 80
+    external = 8080
+  }
+}
+```
+
+* `name` is an argument.
+* `ports` is a block.
+
+---
 
 ### Expressions
 
-- **String interpolation** — insert a value into a string: `"tws-${var.environment}"` → `tws-dev`
-- **Reference** — point to another object's attribute: `docker_image.nginx.image_id`
-- **Operators** — math/logic/comparison: `var.external_port > 1024 && var.external_port < 65535`
+#### String Interpolation
+
+```hcl
+"tws-${var.environment}"
+```
+
+#### References
+
+```hcl
+docker_image.nginx.image_id
+var.container_name
+local.name_prefix
+```
+
+#### Operators
+
+```hcl
+var.external_port > 1024
+var.environment == "prod"
+```
 
 ---
 
 ## Task 2: Variables, Types & Validation
 
-My `variables.tf` covers primitive and collection types, plus a `default`, a `validation` block, and validation rules.
+Source: [`variables.tf`](./variables.tf)
 
-![variables.tf code](screenshots/01-variables-tf.png)
+Terraform supports several variable types.
 
-**Types I used:**
+| Category   | Type            | Example          |
+| ---------- | --------------- | ---------------- |
+| Primitive  | `string`        | `container_name` |
+| Primitive  | `number`        | `external_port`  |
+| Primitive  | `bool`          | `enable_logging` |
+| Collection | `list(string)`  | `regions`        |
+| Collection | `map(string)`   | `extra_labels`   |
+| Collection | `set(string)`   | `allowed_ports`  |
+| Structural | `object({...})` | `server_config`  |
+| Structural | `tuple([...])`  | `tuple_example`  |
 
-| Type category | Type | Variable |
-|---|---|---|
-| Primitive | `string` | `container_name`, `environment`, `image_tag` |
-| Primitive | `number` | `external_port` |
-| Collection | `map(string)` | `extra_labels` |
-
-**Validation example** — only allows valid environments:
+### Validation Example
 
 ```hcl
 variable "environment" {
@@ -66,32 +153,63 @@ variable "environment" {
 }
 ```
 
-If I pass `environment=production`, Terraform stops with my error message before doing anything. ✅
+### Sensitive Variable
+
+```hcl
+variable "db_password" {
+  type      = string
+  sensitive = true
+}
+```
 
 ---
 
 ## Task 3: Locals, Outputs & Functions
 
-### Locals (compute once, reuse everywhere)
+### Locals
+
+Source: [`local.tf`](./local.tf)
 
 ```hcl
 locals {
-  name_prefix   = "tws-${var.environment}"          # uses interpolation
-  common_labels = merge({ project = "terraweek" }, var.extra_labels)  # uses merge()
+  name_prefix = "tws-${var.environment}"
+
+  common_tags = merge(
+    { project = "terraweek" },
+    var.extra_labels
+  )
 }
 ```
 
-### Outputs (expose useful values)
+---
+
+### Outputs
+
+Source: [`outputs.tf`](./outputs.tf)
 
 ```hcl
 output "access_url" {
-  value = format("http://localhost:%d", var.external_port)  # uses format()
+  value = format("http://localhost:%d", var.external_port)
 }
 ```
 
-### Built-in functions — tested live with `terraform console`
+---
 
-![terraform console functions](screenshots/02-terraform-console.png)
+### Built-in Functions
+
+| Function   | Example                                   |
+| ---------- | ----------------------------------------- |
+| `upper()`  | `upper("terraweek")`                      |
+| `merge()`  | `merge({a=1}, {b=2})`                     |
+| `join()`   | `join("-", ["tws", "terraweek", "2026"])` |
+| `length()` | `length(["a","b","c"])`                   |
+| `format()` | `format("%s-%s", "dev", "01")`            |
+
+### Terraform Console
+
+```bash
+terraform console
+```
 
 ```text
 > upper("terraweek")
@@ -105,106 +223,174 @@ output "access_url" {
 
 > join("-", ["tws", "terraweek", "2026"])
 "tws-terraweek-2026"
-
-> length(["a","b","c"])
-3
 ```
 
-Functions used: **`upper()`**, **`merge()`**, **`join()`**, **`length()`**, **`format()`** — more than the 3 required. ✅
+See: [`screenshots/console.png`](./screenshots/console.png)
 
 ---
 
-## Task 4: Build Something Real (Docker — no cloud cost) 🐳
+## Task 4: Build Something Real (Docker Provider)
 
-The config pulls an Nginx image and runs a container, all driven by variables.
+Source: [`example/`](./example)
 
-**1. `terraform init`** — downloads the docker provider:
-
-![terraform init](screenshots/03-terraform-init.png)
-
-**2. `terraform plan`** — preview with variables passed via `-var`:
+### Initialize Terraform
 
 ```bash
-terraform plan -var 'container_name=tws-web' -var 'external_port=8080'
+cd example
+terraform init
 ```
 
-![terraform plan](screenshots/04-terraform-plan.png)
-
-**3. `terraform apply`** — create the container:
+### Plan
 
 ```bash
-terraform apply -var 'container_name=tws-web' -var 'external_port=8080'
+terraform plan \
+-var 'container_name=tws-web' \
+-var 'external_port=8080'
 ```
 
-![terraform apply](screenshots/05-terraform-apply.png)
-
-**4. Container running** — Nginx welcome page at http://localhost:8080:
-
-![nginx running in browser](screenshots/06-nginx-browser.png)
-
-**5. `terraform output`** — the values my config exposes:
-
-![terraform output](screenshots/07-terraform-output.png)
-
-**6. `terraform destroy`** — clean up:
+### Apply
 
 ```bash
-terraform destroy -var 'container_name=tws-web' -var 'external_port=8080'
+terraform apply \
+-var 'container_name=tws-web' \
+-var 'external_port=8080'
 ```
 
-![terraform destroy](screenshots/08-terraform-destroy.png)
+### Verify
 
-### tfvars vs -var flags
+```bash
+docker ps
+curl http://localhost:8080
+```
 
-Instead of typing `-var` every time, I created a `terraform.tfvars` file:
+Visit:
+
+```text
+http://localhost:8080
+```
+
+Expected:
+
+```text
+Welcome to nginx!
+```
+
+### Outputs
+
+```bash
+terraform output
+```
+
+### Destroy
+
+```bash
+terraform destroy \
+-var 'container_name=tws-web' \
+-var 'external_port=8080'
+```
+
+---
+
+## Using `terraform.tfvars`
+
+Source: [`example/terraform.tfvars`](./example/terraform.tfvars)
 
 ```hcl
 container_name = "tws-web"
 external_port  = 8080
 ```
 
-Terraform **auto-loads** `terraform.tfvars`, so I could just run `terraform apply` with no flags. Much cleaner for many variables.
+Now Terraform automatically loads the values:
+
+```bash
+terraform plan
+terraform apply
+terraform output
+terraform destroy
+```
 
 ---
 
-## 📊 Variable Precedence (highest wins)
+## `terraform.tfvars` vs `-var`
+
+| `-var`             | `terraform.tfvars`           |
+| ------------------ | ---------------------------- |
+| Manual input       | Auto-loaded                  |
+| Useful for testing | Useful for daily development |
+| Longer commands    | Cleaner commands             |
+
+---
+
+## Variable Precedence
 
 ```text
--var / -var-file  ▶  *.auto.tfvars  ▶  terraform.tfvars  ▶  TF_VAR_ env vars  ▶  default
+-var / -var-file
+   ↓
+*.auto.tfvars
+   ↓
+terraform.tfvars
+   ↓
+TF_VAR_ environment variables
+   ↓
+default values
 ```
-
-So a `-var` on the command line always beats a `terraform.tfvars` value, which beats the `default` in `variables.tf`.
 
 ---
 
-## 🍫 Bonus
+## Bonus
 
-**For expression** (transform a list):
+### For Expression
+
 ```hcl
-[for s in var.names : upper(s)]   # ["a","b"] → ["A","B"]
+[for s in var.names : upper(s)]
 ```
 
-**Conditional expression** (ternary):
+### Conditional Expression
+
 ```hcl
-var.environment == "prod" ? "t3.medium" : "t3.micro"
+var.environment == "prod"
+? "t3.medium"
+: "t3.micro"
 ```
 
-**Optional object attribute:**
+### Optional Object Attribute
+
 ```hcl
 type = object({
   name = string
-  size = optional(string, "small")   # optional with a default
+  size = optional(string, "small")
 })
 ```
 
 ---
 
+## Screenshots
+
+| Screenshot        | Link                                                           |
+| ----------------- | -------------------------------------------------------------- |
+| Variables         | [`01-variables-tf.png`](./screenshots/01-variables-tf.png)     |
+| Terraform Console | [`console.png`](./screenshots/console.png)                     |
+| Init & Plan       | [`init_plan.png`](./screenshots/init_plan.png)                 |
+| Apply             | [`apply.png`](./screenshots/apply.png)                         |
+| Destroy           | [`terraform-destroy.png`](./screenshots/terraform-destroy.png) |
+
+---
+
 ## ✅ Day 2 Complete
 
-- Learned HCL blocks, arguments, and expressions.
-- Built variables with types, defaults, validation, and a map.
-- Used locals, outputs, and 5 built-in functions.
-- Ran a real Nginx container fully driven by variables.
-- Understood variable precedence and tfvars vs -var.
+* Learned HCL blocks, arguments, and expressions.
+* Implemented all major Terraform variable types.
+* Added validation and sensitive variables.
+* Used locals and outputs.
+* Explored Terraform built-in functions.
+* Built and destroyed a Docker-based Nginx container.
+* Compared `terraform.tfvars` with `-var`.
+* Learned Terraform variable precedence.
 
-#TrainWithShubham #TerraWeekChallenge
+---
+
+### Connect
+
+* GitHub: `sakshi-2028`
+
+**#TrainWithShubham #TerraWeekChallenge #Terraform #DevOps**
