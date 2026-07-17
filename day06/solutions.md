@@ -82,6 +82,8 @@ locals {
 | Shared backend | Dedicated backend per environment |
 | Good for small projects | Recommended for enterprise |
 
+<img width="1600" height="479" alt="WhatsApp Image 2026-07-17 at 6 00 35 PM" src="https://github.com/user-attachments/assets/e4a1ad14-3d5e-4cc5-b08b-8d23d2091d06" />
+
 ---
 
 # 📝 Task 2: Quality Gates
@@ -120,6 +122,11 @@ Success! 4 passed, 0 failed.
 |------|-------------|
 | Plan | Evaluates resources without creating them. |
 | Apply | Creates resources and validates actual infrastructure behavior. |
+
+<img width="1229" height="579" alt="WhatsApp Image 2026-07-17 at 6 00 40 PM" src="https://github.com/user-attachments/assets/845059ea-8446-40f9-97a7-0fb1d3a52e09" />
+<img width="1600" height="589" alt="WhatsApp Image 2026-07-17 at 6 11 28 PM" src="https://github.com/user-attachments/assets/4103b0c2-625f-4f0a-8e41-ed032a3a5762" />
+
+
 
 ---
 
@@ -166,6 +173,10 @@ tfsec .
 terraform plan -out=tfplan
 infracost breakdown --path .
 ```
+<img width="1600" height="567" alt="WhatsApp Image 2026-07-17 at 6 00 43 PM" src="https://github.com/user-attachments/assets/6878f0c9-dd7b-4c57-b673-475a1d39e79a" />
+
+<img width="1600" height="386" alt="WhatsApp Image 2026-07-17 at 6 00 49 PM" src="https://github.com/user-attachments/assets/6e8c2df7-510b-4414-a008-dd20c1795f7d" />
+
 
 ---
 
@@ -267,6 +278,11 @@ PASS / FAIL
 | Terraform Validate | Validates Terraform syntax. |
 | Terraform Test | Executes native Terraform tests. |
 | Security Scan | Detects Terraform misconfigurations using Trivy. |
+
+<img width="1229" height="579" alt="WhatsApp Image 2026-07-17 at 6 00 40 PM" src="https://github.com/user-attachments/assets/2854be72-2a3c-49b7-ad88-bf594de98e17" />
+
+
+<img width="931" height="261" alt="WhatsApp Image 2026-07-17 at 6 11 31 PM" src="https://github.com/user-attachments/assets/c3773c62-c533-49bf-a93d-7feaeda3693a" />
 
 ---
 
