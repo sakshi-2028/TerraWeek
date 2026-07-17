@@ -104,10 +104,15 @@ resource "aws_security_group" "web" {
 # it works even when the instance is replaced. (More on provisioners on Day 6.)
 
 resource "aws_instance" "web" {
+  count                  = 2
   ami                    = data.aws_ami.al2023.id
   instance_type          = var.instance_type
   subnet_id              = aws_subnet.public.id
   vpc_security_group_ids = [aws_security_group.web.id]
+
+  depends_on = [
+    aws_internet_gateway.igw
+  ]
 
   user_data = <<-EOF
     #!/bin/bash
@@ -122,5 +127,19 @@ resource "aws_instance" "web" {
 
   tags = {
     Name = "${var.name_prefix}-web"
+  }
+}
+
+
+resource "aws_s3_bucket" "demo" {
+  for_each = toset([
+    "sakshi-2028-demo-1",
+    "sakshi-2028-demo-2"
+  ])
+
+  bucket = each.value
+
+  tags = {
+    Name = each.value
   }
 }
