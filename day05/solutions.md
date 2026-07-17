@@ -85,6 +85,12 @@ modules/
 - **`outputs.tf`** – Defines the values the module returns.
 - **`README.md`** – Explains how to use the module and its inputs/outputs.
 
+<img width="1206" height="862" alt="WhatsApp Image 2026-07-17 at 2 36 40 PM" src="https://github.com/user-attachments/assets/afbb29de-93b1-4bfd-b06b-6963d9e21afe" />
+
+<img width="1600" height="579" alt="WhatsApp Image 2026-07-17 at 2 36 44 PM" src="https://github.com/user-attachments/assets/2e704ed3-48d4-4c7e-99e0-029873305eac" />
+
+<img width="1309" height="841" alt="WhatsApp Image 2026-07-17 at 2 36 50 PM" src="https://github.com/user-attachments/assets/9d877519-1db0-4d91-b3df-d6e887586ffc" />
+
 
 ---
 
@@ -160,7 +166,14 @@ terraform init
 terraform plan
 terraform apply
 terraform destroy
-```
+``
+<img width="1351" height="794" alt="WhatsApp Image 2026-07-17 at 4 31 04 PM" src="https://github.com/user-attachments/assets/9feea5bb-87df-4424-a1da-5a7d50525f18" />
+
+<img width="1600" height="477" alt="WhatsApp Image 2026-07-17 at 4 31 09 PM" src="https://github.com/user-attachments/assets/2b07c908-1151-419c-bf57-18077932b1c0" />
+
+
+`
+<img width="1279" height="844" alt="WhatsApp Image 2026-07-17 at 4 31 13 PM" src="https://github.com/user-attachments/assets/037ae9b4-81f0-4109-a12e-56553f55410e" />
 
 ### Initialize Module
 
@@ -174,6 +187,7 @@ Output:
 Initializing modules...
 - web_server in modules/ec2_instance
 ```
+<img width="1202" height="465" alt="WhatsApp Image 2026-07-17 at 4 31 11 PM" src="https://github.com/user-attachments/assets/2dffb493-8ec8-4385-b4e1-a3ad808326b4" />
 
 ---
 
@@ -211,6 +225,9 @@ module "servers" {
 + module.servers["cache"]
 ```
 
+<img width="1920" height="729" alt="task3-1" src="https://github.com/user-attachments/assets/c2a8f50b-8072-4550-90b1-63b5aeb0b79b" /><img width="1206" height="862" alt="WhatsApp Image 2026-07-17 at 4 30 49 PM" src="https://github.com/user-attachments/assets/edd07e3e-18a8-4c3b-bf6c-f47904d8af77" />
+
+
 ### Advantages
 
 * Cleaner code.
@@ -244,7 +261,8 @@ module "vpc" {
     "10.0.2.0/24"
   ]
 }
-```
+```<img width="1920" height="1080" alt="task4" src="https://github.com/user-attachments/assets/1a7a0f58-aee3-4cc8-8237-5b9372e41ec9" />
+
 
 ### Why Use Registry Modules?
 
