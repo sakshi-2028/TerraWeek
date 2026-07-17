@@ -13,11 +13,6 @@ I configured the AWS CLI so Terraform can use my credentials (never hard-code ke
 ```bash
 aws configure          # stores keys in ~/.aws/credentials
 aws sts get-caller-identity   # confirms I'm authenticated
-```
-
-![aws authenticated](screenshots/00-aws-configure.png)
-
----
 
 ## 🗺️ The stack I built
 
@@ -103,23 +98,18 @@ data "aws_ami" "al2023" {
 
 **1. `terraform init`** — downloads the AWS provider:
 
-![terraform init](screenshots/01-terraform-init.png)
+<img width="888" height="621" alt="WhatsApp Image 2026-07-17 at 2 35 44 PM" src="https://github.com/user-attachments/assets/1c720c0c-0cd3-4c8c-bd5d-b4948cc333e0" />
+
 
 **2. `terraform validate`** — config is valid:
 
-![terraform validate](screenshots/02-terraform-validate.png)
-
 **3. `terraform plan`** — preview all the resources it will create:
 
-![terraform plan](screenshots/03-terraform-plan.png)
+<img width="1111" height="1009" alt="WhatsApp Image 2026-07-17 at 2 35 59 PM" src="https://github.com/user-attachments/assets/2511cc4a-1465-4ae2-ab70-061b9d05c0fd" />
 
 **4. `terraform apply`** — build the real infrastructure (typed `yes`):
 
-![terraform apply](screenshots/04-terraform-apply.png)
-
 **5. `terraform state list`** — everything Terraform now manages:
-
-![terraform state list](screenshots/05-state-list.png)
 
 ```text
 data.aws_ami.al2023
@@ -135,11 +125,13 @@ aws_vpc.main
 
 **6. AWS Console** — my resources really exist (VPC / EC2):
 
-![aws console showing resources](screenshots/06-aws-console.png)
+<img width="1600" height="461" alt="WhatsApp Image 2026-07-17 at 2 36 04 PM" src="https://github.com/user-attachments/assets/c4b59066-8743-48f0-ac8f-34f77a40e5ab" />
 
-**7. The running web server** — Nginx page at the EC2 public IP (`terraform output web_url`):
+<img width="1600" height="495" alt="WhatsApp Image 2026-07-17 at 2 36 07 PM" src="https://github.com/user-attachments/assets/7cb20450-c165-41c9-9cba-91e61a0cadc2" />
 
-![nginx running on ec2](screenshots/07-web-page.png)
+<img width="1600" height="774" alt="WhatsApp Image 2026-07-17 at 2 36 11 PM" src="https://github.com/user-attachments/assets/6d11437a-944e-4d51-ad2d-9e1c4e55b8c7" />
+
+<img width="1136" height="771" alt="WhatsApp Image 2026-07-17 at 2 36 19 PM" src="https://github.com/user-attachments/assets/6e69eea9-210f-4ff0-8dd3-f6b7dfd40a7a" />
 
 ---
 
@@ -169,11 +161,19 @@ Other lifecycle options I learned:
 
 ---
 
+<img width="1600" height="485" alt="WhatsApp Image 2026-07-17 at 2 36 23 PM" src="https://github.com/user-attachments/assets/ffb6c2f1-361b-4753-8dd7-1052bfc57862" />
+
+<img width="1600" height="564" alt="WhatsApp Image 2026-07-17 at 2 36 27 PM" src="https://github.com/user-attachments/assets/559d5464-0b55-4462-b00a-11355946ecaa" />
+
+<img width="1244" height="690" alt="WhatsApp Image 2026-07-17 at 2 36 33 PM" src="https://github.com/user-attachments/assets/ed67ecd9-108a-469c-93af-91e54e645aff" />
+
+<img width="1128" height="398" alt="WhatsApp Image 2026-07-17 at 2 36 37 PM" src="https://github.com/user-attachments/assets/ba31c27a-d151-4b74-bb37-3245dd93d801" />
+
+
+
 ## Task 5: Update & Destroy
 
 **Update:** I changed a tag / `instance_type` and ran `terraform plan` to read the diff:
-
-![terraform plan diff after change](screenshots/08-plan-diff.png)
 
 - A **tag change** = in-place update (`~`).
 - Changing `instance_type` on some settings = **replace** (`-/+`, force new resource).
