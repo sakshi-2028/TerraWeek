@@ -186,7 +186,7 @@ Reading the diff symbols:
 terraform destroy   # type: yes
 ```
 
-![terraform destroy](screenshots/09-terraform-destroy.png)
+<img width="1136" height="771" alt="WhatsApp Image 2026-07-17 at 2 36 19 PM" src="https://github.com/user-attachments/assets/17c1fd6c-3980-4845-8df6-8b4b755db192" />
 
 ```text
 Destroy complete! Resources: X destroyed.
